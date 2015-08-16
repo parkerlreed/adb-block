@@ -1,0 +1,9 @@
+get_packages() { adb shell pm list packages -e | sed 's/package://' | sort | sed s/\\r\$//; }
+select_packages() { yad --list --checklist --column "Block" --column "Package" --separator "" --print-column=2; }
+disable_packages() {
+    # can be done with xargs if you don't like this way
+    while IFS= read -r package; do
+        adb shell pm block "$package"
+    done
+}
+get_packages | select_packages | disable_packages
