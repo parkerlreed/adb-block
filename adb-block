@@ -3,6 +3,8 @@ select_packages_block() { yad --list --checklist --column "Block" --column "Pack
 select_packages_unblock() { yad --list --checklist --column "Unblock" --column "Package" --separator "" --print-column=2 --width=600 --height=400; }
 check_file() { touch .blocked_packages; }
 sanitize_file() { sed '/^$/d' -i .blocked_packages; }
+status_dialog_blocked() { yad --title "Blocked packages" --text-info --listen --width=600 --height=400 --button=gtk-ok:0; }
+status_dialog_unblocked() { yad --title "Unblocked packages" --text-info --listen --width=600 --height=400 --button=gtk-ok:0; }
 disable_packages() {
     # can be done with xargs if you don't like this way
     while IFS= read -r package; do
@@ -20,13 +22,13 @@ enable_packages() {
 block() { 
 	check_file
 	sanitize_file
-	get_packages | select_packages_block | disable_packages
-	sanitize_file; 
+	get_packages | select_packages_block | disable_packages | status_dialog_blocked
+	sanitize_file;
 }
 unblock() { 
 	check_file
 	sanitize_file
-	cat .blocked_packages | select_packages_unblock | enable_packages
+	cat .blocked_packages | select_packages_unblock | enable_packages | status_dialog_unblocked
 	check_file
 	sanitize_file; 
 }
