@@ -13,7 +13,7 @@ disable_packages() {
 	if [[ $(os_version) < 5 ]]; then
 		adb shell pm block "$package"
 		printf "FALSE\n$package\n" >> .blocked_packages
-	elif [[ $(os_version) > 5 || $(os_version) = 5 ]]; then
+	else
 		adb shell pm clear "$package"
 		adb shell pm hide "$package"
 		printf "FALSE\n$package\n" >> .blocked_packages
@@ -26,7 +26,7 @@ enable_packages() {
 	if [[ $(os_version) < 5 ]]; then
 	        adb shell pm unblock "$package"
 	        sed -n '/'$package'/{n;x;d;};x;1d;p;${x;p;}' -i .blocked_packages
-	elif [[ $(os_version) > 5 || $(os_version) = 5 ]]; then
+	else
                 adb shell pm unhide "$package"
                 sed -n '/'$package'/{n;x;d;};x;1d;p;${x;p;}' -i .blocked_packages
 	fi
