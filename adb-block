@@ -30,14 +30,16 @@ unblock() {
 	check_file
 	sanitize_file; 
 }
-if yad \
-	--image "dialog-question" \
+yad	--image "dialog-question" \
 	--title "adb-block" \
-	--button=Block:0 \
-	--button=Unblock:1 \
+	--button=Block:1 \
+	--button=Unblock:2 \
 	--text "Would you like to block or unblock?"
-then
+ret=$?
+if [[ $ret == 1 ]]; then
 	block
-else
+elif [[ $ret == 2 ]]; then
 	unblock
+elif [[ $ret == 0 ]]; then
+	exit
 fi
