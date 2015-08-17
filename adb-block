@@ -1,6 +1,6 @@
 get_packages() { adb shell pm list packages -e | sort -t";" -k2 | sed 's/package:/FALSE\n/g' | sed s/\\r\$//; }
-select_packages_block() { yad --list --checklist --column "Block" --column "Package" --separator "" --print-column=2; }
-select_packages_unblock() { yad --list --checklist --column "Unblock" --column "Package" --separator "" --print-column=2; }
+select_packages_block() { yad --list --checklist --column "Block" --column "Package" --separator "" --print-column=2 --width=600 --height=400; }
+select_packages_unblock() { yad --list --checklist --column "Unblock" --column "Package" --separator "" --print-column=2 --width=600 --height=400; }
 check_file() { touch .blocked_packages; }
 sanitize_file() { sed '/^$/d' -i .blocked_packages; }
 disable_packages() {
