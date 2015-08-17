@@ -1,5 +1,6 @@
 #!/bin/bash
 get_packages() { adb shell pm list packages -e | sort -t";" -k2 | sed 's/package:/FALSE\n/g' | sed s/\\r\$//; }
+os_version() { adb shell getprop ro.build.version.release | sed s/\\r\$//; }
 select_packages_block() { yad --list --checklist --column "Block" --column "Package" --separator "" --print-column=2 --width=600 --height=400; }
 select_packages_unblock() { yad --list --checklist --column "Unblock" --column "Package" --separator "" --print-column=2 --width=600 --height=400; }
 check_file() { touch .blocked_packages; }
@@ -9,15 +10,26 @@ status_dialog_unblocked() { yad --title "Unblocked packages" --text-info --liste
 disable_packages() {
     # can be done with xargs if you don't like this way
     while IFS= read -r package; do
-        adb shell pm block "$package"
-        printf "FALSE\n$package\n" >> .blocked_packages
+	if [[ $(os_version) < 5 ]]; then
+		adb shell pm block "$package"
+		printf "FALSE\n$package\n" >> .blocked_packages
+	elif [[ $(os_version) > 5 || $(os_version) = 5 ]]; then
+		adb shell pm clear "$package"
+		adb shell pm hide "$package"
+		printf "FALSE\n$package\n" >> .blocked_packages
+	fi
     done
 }
 enable_packages() {
     # can be done with xargs if you don't like this way
     while IFS= read -r package; do
-        adb shell pm unblock "$package"
-        sed -n '/'$package'/{n;x;d;};x;1d;p;${x;p;}' -i .blocked_packages
+	if [[ $(os_version) < 5 ]]; then
+	        adb shell pm unblock "$package"
+	        sed -n '/'$package'/{n;x;d;};x;1d;p;${x;p;}' -i .blocked_packages
+	elif [[ $(os_version) > 5 || $(os_version) = 5 ]]; then
+                adb shell pm unhide "$package"
+                sed -n '/'$package'/{n;x;d;};x;1d;p;${x;p;}' -i .blocked_packages
+	fi
     done
 }
 block() { 
