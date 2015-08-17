@@ -1,10 +1,43 @@
-get_packages() { adb shell pm list packages -e | sed 's/package://' | sort | sed s/\\r\$//; }
-select_packages() { yad --list --checklist --column "Block" --column "Package" --separator "" --print-column=2; }
+get_packages() { adb shell pm list packages -e | sort -t";" -k2 | sed 's/package:/FALSE\n/g' | sed s/\\r\$//; }
+select_packages_block() { yad --list --checklist --column "Block" --column "Package" --separator "" --print-column=2; }
+select_packages_unblock() { yad --list --checklist --column "Unblock" --column "Package" --separator "" --print-column=2; }
+check_file() { touch .blocked_packages; }
+sanitize_file() { sed '/^$/d' -i .blocked_packages; }
 disable_packages() {
     # can be done with xargs if you don't like this way
     while IFS= read -r package; do
         adb shell pm block "$package"
-        echo "$package" >> .blocked_packages
+        printf "FALSE\n$package\n" >> .blocked_packages
     done
 }
-get_packages | select_packages | disable_packages
+enable_packages() {
+    # can be done with xargs if you don't like this way
+    while IFS= read -r package; do
+        adb shell pm unblock "$package"
+        sed -n '/'$package'/{n;x;d;};x;1d;p;${x;p;}' -i .blocked_packages
+    done
+}
+block() { 
+	check_file
+	sanitize_file
+	get_packages | select_packages_block | disable_packages
+	sanitize_file; 
+}
+unblock() { 
+	check_file
+	sanitize_file
+	cat .blocked_packages | select_packages_unblock | enable_packages
+	check_file
+	sanitize_file; 
+}
+if yad \
+	--image "dialog-question" \
+	--title "adb-block" \
+	--button=Block:0 \
+	--button=Unblock:1 \
+	--text "Would you like to block or unblock?"
+then
+	block
+else
+	unblock
+fi
