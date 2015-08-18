@@ -25,10 +25,10 @@ enable_packages() {
     while IFS= read -r package; do
 	if [[ $(os_version) < 5 ]]; then
 	        adb shell pm unblock "$package"
-	        sed '/'$package'/{n;x;d;};x;1d;p;${x;p;}' -i .blocked_packages
+	        sed -n '/'$package'/{n;x;d;};x;1d;p;${x;p;}' -i .blocked_packages
 	else
                 adb shell pm unhide "$package"
-                sed '/'$package'/{n;x;d;};x;1d;p;${x;p;}' -i .blocked_packages
+                sed -n '/'$package'/{n;x;d;};x;1d;p;${x;p;}' -i .blocked_packages
 	fi
     done
 }
