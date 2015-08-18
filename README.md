@@ -1,7 +1,7 @@
 # adb-block
 Script to block packages on Android even without root
 
-There is now an initial CLI port. NOTE: Do no use the GUI and CLI versions tnterchangeably. The .blocked_packages file is formatted differently due to the utilities used. There will be errors if you say block in GUI and nnblock in CLI or block in CLI and unblock in GUI.
+There is now an initial CLI port. NOTE: Do no use the GUI and CLI versions interchangeably. The .blocked_packages file is formatted differently due to the utilities used. There will be errors if you say block in GUI and unblock in CLI or block in CLI and unblock in GUI.
 
 Thanks to /u/UnchainedMundane for the cleaned up code.
 
