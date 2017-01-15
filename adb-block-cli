@@ -8,7 +8,7 @@ status_dialog_blocked() { dialog --msgbox "$(cat .status)" 24 80; }
 status_dialog_unblocked() { dialog --msgbox "$(cat .status)" 24 80; }
 disable_packages() {
     # can be done with xargs if you don't like this way
-    while IFS= read -r package; do
+    for package in $@; do
 	if [[ $(os_version) < 5 ]]; then
 		adb shell pm block "$package"
 		printf "$package $package off \n" >> .blocked_packages_cli
@@ -34,7 +34,7 @@ enable_packages() {
 block() { 
 	check_file
 	select_packages_block
-	cat .packages | disable_packages > .status
+	disable_packages $(cat .packages) > .status
 	status_dialog_blocked;
 }
 unblock() { 
