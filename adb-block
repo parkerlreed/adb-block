@@ -9,30 +9,30 @@ status_dialog_blocked() { yad --title "Blocked packages" --text-info --width=600
 status_dialog_unblocked() { yad --title "Unblocked packages" --text-info --width=600 --height=400 --button=gtk-ok:0; }
 unsupported() { if [[ $(os_version) > 5 ]]; then yad --title "adb-block" --button=Ok:1 --text "Unblocking is unsupported on newer OS versions"; exit; fi; }
 disable_packages() {
-    # can be done with xargs if you don't like this way
-    for package in $@; do
-	if [[ $(os_version) < 5 ]]; then
-		adb shell pm block "$package"
-		printf "FALSE\n$package\n" >> .blocked_packages
-	else
-        adb shell pm uninstall -k --user 0 "$package"
-        printf "FALSE\n$package\n" >> .blocked_packages
-	fi
-    done
+	# can be done with xargs if you don't like this way
+	for package in $@; do
+		if [[ $(os_version) < 5 ]]; then
+			adb shell pm block "$package"
+			printf "FALSE\n$package\n" >> .blocked_packages
+		else
+			adb shell pm uninstall -k --user 0 "$package"
+			printf "FALSE\n$package\n" >> .blocked_packages
+		fi
+	done
 }
 enable_packages() {
-    # can be done with xargs if you don't like this way
-    while IFS= read -r package; do
-	if [[ $(os_version) < 5 ]]; then
-	        adb shell pm unblock "$package"
-	        sed -n '/'$package'/{n;x;d;};x;1d;p;${x;p;}' -i .blocked_packages
-	else
-                adb shell pm unhide "$package"
-                sed -n '/'$package'/{n;x;d;};x;1d;p;${x;p;}' -i .blocked_packages
-	fi
-    done
+	# can be done with xargs if you don't like this way
+	while IFS= read -r package; do
+		if [[ $(os_version) < 5 ]]; then
+			adb shell pm unblock "$package"
+			sed -n '/'$package'/{n;x;d;};x;1d;p;${x;p;}' -i .blocked_packages
+		else
+			adb shell pm unhide "$package"
+			sed -n '/'$package'/{n;x;d;};x;1d;p;${x;p;}' -i .blocked_packages
+		fi
+	done
 }
-block() { 
+block() {
 	check_file
 	sanitize_file
 	disable_packages $(get_packages | select_packages_block) > .status
@@ -40,13 +40,13 @@ block() {
 	sanitize_file;
 }
 unblock() {
-    unsupported
+	unsupported
 	check_file
 	sanitize_file
 	cat .blocked_packages | select_packages_unblock | enable_packages > .status
 	cat .status | status_dialog_unblocked
 	check_file
-	sanitize_file; 
+	sanitize_file;
 }
 yad	--image "dialog-question" \
 	--title "adb-block" \

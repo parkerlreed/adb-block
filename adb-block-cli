@@ -8,41 +8,41 @@ status_dialog_blocked() { dialog --msgbox "$(cat .status)" 24 80; }
 status_dialog_unblocked() { dialog --msgbox "$(cat .status)" 24 80; }
 unsupported() { if [[ $(os_version) > 5 ]]; then dialog --title 'Message' --msgbox 'Cannot unblock on newer OS versions' 5 60; exit; fi; }
 disable_packages() {
-    # can be done with xargs if you don't like this way
-    for package in $@; do
-	if [[ $(os_version) < 5 ]]; then
-		adb shell pm block "$package"
-		printf "$package $package off \n" >> .blocked_packages_cli
-	else
-        adb shell pm uninstall -k --user 0 "$package"
-        printf "$package $package off \n" >> .blocked_packages_cli
-	fi
-    done
+	# can be done with xargs if you don't like this way
+	for package in $@; do
+		if [[ $(os_version) < 5 ]]; then
+			adb shell pm block "$package"
+			printf "$package $package off \n" >> .blocked_packages_cli
+		else
+			adb shell pm uninstall -k --user 0 "$package"
+			printf "$package $package off \n" >> .blocked_packages_cli
+		fi
+	done
 }
 enable_packages() {
-    # can be done with xargs if you don't like this way
-    while IFS= read -r package; do
-	if [[ $(os_version) < 5 ]]; then
-	        adb shell pm unblock "$package"
-	        sed '/'$package'/d' -i .blocked_packages_cli
-	else
-                adb shell pm unhide "$package"
-                sed '/'$package'/d' -i .blocked_packages_cli
-	fi
-    done
+	# can be done with xargs if you don't like this way
+	while IFS= read -r package; do
+		if [[ $(os_version) < 5 ]]; then
+			adb shell pm unblock "$package"
+			sed '/'$package'/d' -i .blocked_packages_cli
+		else
+			adb shell pm unhide "$package"
+			sed '/'$package'/d' -i .blocked_packages_cli
+		fi
+	done
 }
-block() { 
+block() {
 	check_file
 	select_packages_block
 	disable_packages $(cat .packages) > .status
 	status_dialog_blocked;
 }
 unblock() {
-    unsupported
+	unsupported
 	check_file
 	select_packages_unblock
 	cat .delpack | enable_packages > .status
-	status_dialog_unblocked; 
+	status_dialog_unblocked;
 }
 dialog --menu "Would you like to block or unblock?" 24 80 24 "Block" "Block a package" "Unblock" "Unblock a package" 2>.answer
 if [[ $(cat .answer) == "Block" ]];
