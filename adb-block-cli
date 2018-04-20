@@ -6,6 +6,7 @@ select_packages_unblock() { dialog --checklist Packages 24 80 20 $(cat .blocked_
 check_file() { touch .blocked_packages_cli; }
 status_dialog_blocked() { dialog --msgbox "$(cat .status)" 24 80; }
 status_dialog_unblocked() { dialog --msgbox "$(cat .status)" 24 80; }
+unsupported() { if [[ $(os_version) > 5 ]]; then dialog --title 'Message' --msgbox 'Cannot unblock on newer OS versions' 5 60; exit; fi; }
 disable_packages() {
     # can be done with xargs if you don't like this way
     for package in $@; do
@@ -13,9 +14,8 @@ disable_packages() {
 		adb shell pm block "$package"
 		printf "$package $package off \n" >> .blocked_packages_cli
 	else
-		adb shell pm clear "$package"
-		adb shell pm hide "$package"
-		printf "$package $package off \n" >> .blocked_packages_cli
+        adb shell pm uninstall -k --user 0 "$package"
+        printf "$package $package off \n" >> .blocked_packages_cli
 	fi
     done
 }
@@ -37,7 +37,8 @@ block() {
 	disable_packages $(cat .packages) > .status
 	status_dialog_blocked;
 }
-unblock() { 
+unblock() {
+    unsupported
 	check_file
 	select_packages_unblock
 	cat .delpack | enable_packages > .status

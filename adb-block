@@ -7,6 +7,7 @@ check_file() { touch .blocked_packages; }
 sanitize_file() { sed '/^$/d' -i .blocked_packages; }
 status_dialog_blocked() { yad --title "Blocked packages" --text-info --width=600 --height=400 --button=gtk-ok:0; }
 status_dialog_unblocked() { yad --title "Unblocked packages" --text-info --width=600 --height=400 --button=gtk-ok:0; }
+unsupported() { if [[ $(os_version) > 5 ]]; then yad --title "adb-block" --button=Ok:1 --text "Unblocking is unsupported on newer OS versions"; exit; fi; }
 disable_packages() {
     # can be done with xargs if you don't like this way
     for package in $@; do
@@ -14,9 +15,8 @@ disable_packages() {
 		adb shell pm block "$package"
 		printf "FALSE\n$package\n" >> .blocked_packages
 	else
-		adb shell pm clear "$package"
-		adb shell pm hide "$package"
-		printf "FALSE\n$package\n" >> .blocked_packages
+        adb shell pm uninstall -k --user 0 "$package"
+        printf "FALSE\n$package\n" >> .blocked_packages
 	fi
     done
 }
@@ -39,7 +39,8 @@ block() {
 	cat .status | status_dialog_blocked
 	sanitize_file;
 }
-unblock() { 
+unblock() {
+    unsupported
 	check_file
 	sanitize_file
 	cat .blocked_packages | select_packages_unblock | enable_packages > .status
