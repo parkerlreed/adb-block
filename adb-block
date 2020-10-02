@@ -27,7 +27,7 @@ enable_packages() {
 			adb shell pm unblock "$package"
 			sed -n '/'$package'/{n;x;d;};x;1d;p;${x;p;}' -i .blocked_packages
 		else
-			adb shell pm unhide "$package"
+			adb shell cmd package install-existing "$package"
 			sed -n '/'$package'/{n;x;d;};x;1d;p;${x;p;}' -i .blocked_packages
 		fi
 	done
@@ -40,7 +40,7 @@ block() {
 	sanitize_file;
 }
 unblock() {
-	unsupported
+	#unsupported
 	check_file
 	sanitize_file
 	cat .blocked_packages | select_packages_unblock | enable_packages > .status
