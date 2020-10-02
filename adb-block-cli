@@ -26,7 +26,7 @@ enable_packages() {
 			adb shell pm unblock "$package"
 			sed '/'$package'/d' -i .blocked_packages_cli
 		else
-			adb shell pm unhide "$package"
+			adb shell cmd package install-existing "$package"
 			sed '/'$package'/d' -i .blocked_packages_cli
 		fi
 	done
@@ -38,7 +38,7 @@ block() {
 	status_dialog_blocked;
 }
 unblock() {
-	unsupported
+	#unsupported
 	check_file
 	select_packages_unblock
 	cat .delpack | enable_packages > .status
