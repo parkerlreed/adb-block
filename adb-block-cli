@@ -10,7 +10,7 @@ unsupported() { if [[ $(os_version) > 5 ]]; then dialog --title 'Message' --msgb
 disable_packages() {
 	# can be done with xargs if you don't like this way
 	for package in $@; do
-		if [[ $(os_version) < 5 ]]; then
+		if [[ $(os_version) -lt 5 ]]; then
 			adb shell pm block "$package"
 			printf "$package $package off \n" >> .blocked_packages_cli
 		else
@@ -22,7 +22,7 @@ disable_packages() {
 enable_packages() {
 	# can be done with xargs if you don't like this way
 	while IFS= read -r package; do
-		if [[ $(os_version) < 5 ]]; then
+		if [[ $(os_version) -lt 5 ]]; then
 			adb shell pm unblock "$package"
 			sed '/'$package'/d' -i .blocked_packages_cli
 		else

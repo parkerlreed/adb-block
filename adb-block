@@ -11,7 +11,7 @@ unsupported() { if [[ $(os_version) > 5 ]]; then yad --title "adb-block" --butto
 disable_packages() {
 	# can be done with xargs if you don't like this way
 	for package in $@; do
-		if [[ $(os_version) < 5 ]]; then
+		if [[ $(os_version) -lt 5 ]]; then
 			adb shell pm block "$package"
 			printf "FALSE\n$package\n" >> .blocked_packages
 		else
@@ -23,7 +23,7 @@ disable_packages() {
 enable_packages() {
 	# can be done with xargs if you don't like this way
 	while IFS= read -r package; do
-		if [[ $(os_version) < 5 ]]; then
+		if [[ $(os_version) -lt 5 ]]; then
 			adb shell pm unblock "$package"
 			sed -n '/'$package'/{n;x;d;};x;1d;p;${x;p;}' -i .blocked_packages
 		else
